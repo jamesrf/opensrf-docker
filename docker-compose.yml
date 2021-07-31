@@ -1,0 +1,83 @@
+version: "3.9"
+services:
+
+  ejabberd:
+    image: "ejabberd/ecs"
+    volumes:
+    - type: volume
+      source: ejabberd-database
+      target: /home/ejabberd/database 
+    - type: bind
+      source: ./ejabberd/ejabberd.yml
+      target: /home/ejabberd/conf/ejabberd.yml
+    ports:
+    - 5222:5222
+    networks:
+      private:
+        aliases:
+          - private.ejabberd
+      public:
+        aliases:
+          - public.ejabberd
+    environment:
+      - CTL_ON_CREATE=register opensrf public.ejabberd password ;
+                      register opensrf private.ejabberd password ;
+                      register router public.ejabberd password ;
+                      register router private.ejabberd password 
+  router:
+    hostname: router.opensrf
+    build: opensrf
+    volumes:
+    - ./opensrf/opensrf.xml:/openils/conf/opensrf.xml
+    - ./opensrf/opensrf_core.xml:/openils/conf/opensrf_core.xml
+    - ./opensrf/srfsh.xml:/home/opensrf/.srfsh.xml
+    - ./opensrf/wrapper.sh:/openils/bin/wrapper.sh
+    networks:
+      - private
+      - public
+    depends_on:
+      - "ejabberd"
+    command: "/openils/bin/wrapper.sh --start --service router"
+  app1:
+    hostname: app1.opensrf
+    build: opensrf
+    volumes:
+    - ./opensrf/opensrf.xml:/openils/conf/opensrf.xml
+    - ./opensrf/opensrf_core.xml:/openils/conf/opensrf_core.xml
+    - ./opensrf/srfsh.xml:/home/opensrf/.srfsh.xml
+    - ./opensrf/wrapper.sh:/openils/bin/wrapper.sh
+    networks:
+      - private
+      - public
+    command: "/openils/bin/wrapper.sh --start-services"
+    depends_on:
+      - "router"
+  app2:
+    hostname: app2.opensrf
+    build: opensrf
+    volumes:
+    - ./opensrf/opensrf.xml:/openils/conf/opensrf.xml
+    - ./opensrf/opensrf_core.xml:/openils/conf/opensrf_core.xml
+    - ./opensrf/srfsh.xml:/home/opensrf/.srfsh.xml
+    - ./opensrf/wrapper.sh:/openils/bin/wrapper.sh
+    networks:
+      - private
+      - public
+    command: "/openils/bin/wrapper.sh --start-services"
+  app3:
+    hostname: app3.opensrf
+    build: opensrf
+    volumes:
+    - ./opensrf/opensrf.xml:/openils/conf/opensrf.xml
+    - ./opensrf/opensrf_core.xml:/openils/conf/opensrf_core.xml
+    - ./opensrf/srfsh.xml:/home/opensrf/.srfsh.xml
+    - ./opensrf/wrapper.sh:/openils/bin/wrapper.sh
+    networks:
+      - private
+      - public
+    command: "/openils/bin/wrapper.sh --start-services"
+volumes:
+  ejabberd-database:
+networks:
+  private:
+  public:
