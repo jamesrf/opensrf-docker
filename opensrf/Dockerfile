@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 RUN useradd -m -s /bin/bash opensrf
 RUN echo "export PATH=\$PATH:/openils/bin" >> /home/opensrf/.bashrc
 
@@ -17,7 +17,7 @@ RUN git clone git://git.evergreen-ils.org/OpenSRF.git /src/OpenSRF
 WORKDIR /src/OpenSRF
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN cd /src/OpenSRF && make -f src/extras/Makefile.install ubuntu-focal
+RUN cd /src/OpenSRF && make -f src/extras/Makefile.install ubuntu-jammy
 
 RUN autoreconf -i
 
